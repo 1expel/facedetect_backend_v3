@@ -32,7 +32,7 @@ userRouter.post('/signUp', async function(req, res) {
         entries: 0,
         date: new Date()
     }
-    res.status(200).json(obj);
+    res.status(201).json(obj);
 });
 
 // get user's data
