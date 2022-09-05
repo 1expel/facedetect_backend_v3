@@ -1,9 +1,10 @@
 import express from 'express';
-import {userRouter} from './api';
+import {userRouter} from './api/index.js';
 
 const app = express();
+
 app.use(express.json());
-app.use('./api/user/index.js', userRouter);
+app.use('/user', userRouter);
 
 // root
 app.get('/', function(req, res) {
