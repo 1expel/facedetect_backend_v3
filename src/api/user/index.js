@@ -9,9 +9,16 @@ userRouter.post('/signIn', async function(req, res) {
     const hash = await bcrypt.hash('123', saltRounds);
     const result = await bcrypt.compare(req.body.password, hash);
     if(req.body.email === 'conk@gmail.com' && result === true) {
-        res.json('success');
+        const obj = {
+            id: 1,
+            name: "conk",
+            email: req.body.email,
+            entries: 0,
+            date: new Date()
+        }
+        res.status(200).json(obj);
     } else {
-        res.json('could not sign in');
+        res.status(400).json('could not sign in');
     }
 });
 
@@ -22,11 +29,10 @@ userRouter.post('/signUp', async function(req, res) {
         id: 1,
         name: req.body.name,
         email: req.body.email,
-        password: hash,
         entries: 0,
         date: new Date()
     }
-    res.json(obj);
+    res.status(200).json(obj);
 });
 
 // get user's data
