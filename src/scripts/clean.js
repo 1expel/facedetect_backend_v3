@@ -1,21 +1,12 @@
-import pg from 'pg';
-import dotenv from 'dotenv';
-import { promises } from 'fs';
-
-dotenv.config();
-
-const pool = new pg.Pool({
-    user: process.env.USER,
-    host: process.env.HOST,
-    database: process.env.DATABASE,
-    password: process.env.PASSWORD,
-    port: process.env.PORT
-});
+import pool from '../db/index.js';
+import fs from 'fs';
 
 const clean = async () => {
+
+
     console.log('trying to clean database');
     console.log('trying to delete tables');
-    const sql = await promises.readFile(
+    const sql = await fs.promises.readFile(
         './src/db/sql/core/deleteTables.sql',
         'utf-8'
     );
@@ -27,7 +18,7 @@ const clean = async () => {
         console.log(err);
     }
     console.log('trying to create tables');
-    const sql2 = await promises.readFile(
+    const sql2 = await fs.promises.readFile(
         './src/db/sql/core/createTables.sql',
         'utf-8'
     );
@@ -39,6 +30,9 @@ const clean = async () => {
         console.log(err);
     }
     console.log('database successfully cleaned');
+
+
+
 }
 
 await clean();

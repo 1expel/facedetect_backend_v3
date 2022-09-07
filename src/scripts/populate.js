@@ -1,15 +1,5 @@
-import pg from 'pg';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const pool = new pg.Pool({
-    user: process.env.USER,
-    host: process.env.HOST,
-    database: process.env.DATABASE,
-    password: process.env.PASSWORD,
-    port: process.env.PORT
-});
+import pool from '../db/index.js';
+import fs from 'fs';
 
 const populate = async () => {
 
@@ -17,27 +7,28 @@ const populate = async () => {
 
     try {
 
-        console.log("beginning txn");
+        console.log('beginning txn');
         await client.query('BEGIN');
-        
-
+        const sql = await fs.promises.readFile(
+            './src/db/sql/user/addUser.sql',
+            'utf-8'
+        );
+        await client.query(sql, ['conk', 'conk3@gmail.com']);
+        await client.query('COMMIT');
+        console.log('finished txn');
 
     }
     catch (err) {
+        await client.query('ROLLBACK');
+        console.log(err);
 
-
+    }
+    finally {
+        client.release();
     }
 
 }
 
-pool.query('SELECT * FROM users', (err, res) => {
-
-    if(err) {
-        console.log(err);
-    }
-    else {
-        console.log(res.rows);
-    }
-    pool.end();
-});
+await populate();
+process.exit();
 
