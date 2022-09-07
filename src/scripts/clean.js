@@ -2,37 +2,23 @@ import pool from '../db/index.js';
 import fs from 'fs';
 
 const clean = async () => {
-
-
-    console.log('trying to clean database');
-    console.log('trying to delete tables');
-    const sql = await fs.promises.readFile(
-        './src/db/sql/core/deleteTables.sql',
-        'utf-8'
-    );
     try {
+        console.log('trying to clean database');
+        const sql = await fs.promises.readFile(
+            './src/db/sql/core/deleteTables.sql',
+            'utf-8'
+        );
         await pool.query(sql);
-        console.log("tables deleted");
-    }
-    catch (err) {
-        console.log(err);
-    }
-    console.log('trying to create tables');
-    const sql2 = await fs.promises.readFile(
-        './src/db/sql/core/createTables.sql',
-        'utf-8'
-    );
-    try {
+        const sql2 = await fs.promises.readFile(
+            './src/db/sql/core/createTables.sql',
+            'utf-8'
+        );
         await pool.query(sql2);
-        console.log("tables created");
+        console.log('database successfully cleaned');
     }
     catch (err) {
         console.log(err);
     }
-    console.log('database successfully cleaned');
-
-
-
 }
 
 await clean();
