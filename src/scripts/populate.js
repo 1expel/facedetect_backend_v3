@@ -1,7 +1,8 @@
 import pool from '../db/index.js';
 import fs from 'fs';
+import users from '../assets/users.js';
 
-const populate = async () => {
+const populate = async (user) => {
     const client = await pool.connect();
     try {
         console.log('beginning txn');
@@ -10,12 +11,12 @@ const populate = async () => {
             './src/db/sql/user/addUser.sql',
             'utf-8'
         );
-        await client.query(sql, ['conk', 'conk3@gmail.com']);
+        await client.query(sql, [user.name, user.email]);
         const sql2 = await fs.promises.readFile(
             './src/db/sql/user/addLogin.sql',
             'utf-8'
         );
-        await client.query(sql2, ['conk@gmail.com', '123']);
+        await client.query(sql2, [user.email, user.password]);
         await client.query('COMMIT');
         console.log('finished txn');
     }
@@ -28,5 +29,6 @@ const populate = async () => {
     }
 }
 
-await populate();
-process.exit();
+for (const user of users) {
+    populate(user);
+}

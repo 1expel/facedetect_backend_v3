@@ -1,2 +1,2 @@
-INSERT INTO logins(email, hash) 
+INSERT INTO logins (email, hash) 
 VALUES ($1, $2);

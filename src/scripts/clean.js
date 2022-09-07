@@ -21,5 +21,4 @@ const clean = async () => {
     }
 }
 
-await clean();
-process.exit();
+clean();
