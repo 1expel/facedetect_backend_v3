@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start-dev": "nodemon src/index.js",
+    "clean": "node src/scripts/clean.js",
     "populate": "node src/scripts/populate.js"
   },
   "repository": {
