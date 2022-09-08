@@ -1,4 +1,6 @@
 import {Router} from 'express';
+import pool from '../../db/index.js';
+import fs from 'fs';
 import bcrypt from 'bcrypt';
 
 const userRouter = Router();
@@ -25,14 +27,31 @@ userRouter.post('/signIn', async function(req, res) {
 // user signs up
 userRouter.post('/signUp', async function(req, res) {
     const hash = await bcrypt.hash(req.body.password, saltRounds);
-    const obj = {
-        id: 1,
-        name: req.body.name,
-        email: req.body.email,
-        entries: 0,
-        date: new Date()
+    const client = await pool.connect();
+    try {
+        console.log('beginning txn');
+        await client.query('BEGIN');
+        const sql = await fs.promises.readFile(
+            './src/db/sql/user/addUser.sql',
+            'utf-8'
+        );
+        const res = await client.query(sql, [req.body.name, req.body.email, new Date()]);
+        const sql2 = await fs.promises.readFile(
+            './src/db/sql/user/addLogin.sql',
+            'utf-8'
+        );
+        await client.query(sql2, [req.body.email, hash]);
+        await client.query('COMMIT');
+        console.log('finished txn');
     }
-    res.status(201).json(obj);
+    catch (err) {
+        await client.query('ROLLBACK');
+        console.log(err);
+    }
+    finally {
+        client.release();
+    }
+    res.status(201).json({});
 });
 
 // get user's data

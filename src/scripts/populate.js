@@ -11,7 +11,7 @@ const populate = async (user) => {
             './src/db/sql/user/addUser.sql',
             'utf-8'
         );
-        await client.query(sql, [user.name, user.email]);
+        await client.query(sql, [user.name, user.email, new Date()]);
         const sql2 = await fs.promises.readFile(
             './src/db/sql/user/addLogin.sql',
             'utf-8'
