@@ -7,54 +7,61 @@ const userRouter = Router();
 const saltRounds = 10;
 
 // user signs in
-userRouter.post('/signIn', async function(req, res) {
-    const hash = await bcrypt.hash('123', saltRounds);
-    const result = await bcrypt.compare(req.body.password, hash);
-    if(req.body.email === 'conk@gmail.com' && result === true) {
-        const obj = {
-            id: 1,
-            name: "conk",
-            email: req.body.email,
-            entries: 0,
-            date: new Date()
+userRouter.post('/signIn', async (req, res) => {
+    try {
+        console.log("hello");
+        const sql = await fs.promises.readFile(
+            './src/db/sql/user/getHashByEmail.sql',
+        );
+        console.log("hello");
+        const hash = await pool.query(sql, [req.params.email]);
+        console.log(hash);
+        const same = await bcrypt.compare(req.body.password, hash);
+        if(!same) {
+            throw new Error();
         }
-        res.status(200).json(obj);
-    } else {
-        res.status(400).json('could not sign in');
+        const sql2 = await fs.promises.readFile(
+            './src/db/sql/user/getHashByEmail.sql',
+            'uft-8'
+        );
+        const user = pool.query(sql2, [req.params.email]).rows[0];
+        console.log(user);
+        res.status(200).json(user);
+    }
+    catch (err) {
+        console.log(err);
+        res.status(400).json({});
     }
 });
 
 // user signs up
-userRouter.post('/signUp', async function(req, res) {
-    const hash = await bcrypt.hash(req.body.password, saltRounds);
-    const client = await pool.connect();
+userRouter.post('/signUp', async (req, res) => {
     let success = true;
-    let result;
+    let user = {};
+    const client = await pool.connect();
     try {
-        console.log('beginning txn');
+        const hash = await bcrypt.hash(req.body.password, saltRounds);
         await client.query('BEGIN');
         const sql = await fs.promises.readFile(
             './src/db/sql/user/addUser.sql',
             'utf-8'
         );
-        result = await client.query(sql, [req.body.name, req.body.email, new Date()]);
+        user = await client.query(sql, [req.body.name, req.body.email, new Date()]).rows[0];
         const sql2 = await fs.promises.readFile(
             './src/db/sql/user/addLogin.sql',
             'utf-8'
         );
         await client.query(sql2, [req.body.email, hash]);
         await client.query('COMMIT');
-        console.log('finished txn');
     }
     catch (err) {
         await client.query('ROLLBACK');
-        console.log(err);
         success = false;
     }
     finally {
         client.release();
         if(success) {
-            res.status(201).json(result.rows[0]);
+            res.status(201).json(user);
         }
         else {
             res.status(400).json({})
@@ -62,14 +69,19 @@ userRouter.post('/signUp', async function(req, res) {
     } 
 });
 
-// get user's data
-userRouter.get('/:userId', function(req, res) {
-    res.json(req.params.id);
-});
-
 // get user's entries
-userRouter.put('/entries', function(req, res) {
-    res.json('entries');
+userRouter.put('/entries', async (req, res) => {
+    try {
+        const sql = await fs.promises.readFile(
+            './src/db/sql/user/getUserById.sql',
+            'utf-8'
+        );
+        const result = await pool.query(sql, [req.params.id]);
+        res.status(200).json(result.rows[0]);
+        }
+    catch (err) {
+        res.status(400).json({});
+    }
 });
 
 export default userRouter;
