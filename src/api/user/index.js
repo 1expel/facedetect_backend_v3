@@ -28,6 +28,8 @@ userRouter.post('/signIn', async function(req, res) {
 userRouter.post('/signUp', async function(req, res) {
     const hash = await bcrypt.hash(req.body.password, saltRounds);
     const client = await pool.connect();
+    let success = true;
+    let result;
     try {
         console.log('beginning txn');
         await client.query('BEGIN');
@@ -35,7 +37,7 @@ userRouter.post('/signUp', async function(req, res) {
             './src/db/sql/user/addUser.sql',
             'utf-8'
         );
-        const res = await client.query(sql, [req.body.name, req.body.email, new Date()]);
+        result = await client.query(sql, [req.body.name, req.body.email, new Date()]);
         const sql2 = await fs.promises.readFile(
             './src/db/sql/user/addLogin.sql',
             'utf-8'
@@ -47,11 +49,17 @@ userRouter.post('/signUp', async function(req, res) {
     catch (err) {
         await client.query('ROLLBACK');
         console.log(err);
+        success = false;
     }
     finally {
         client.release();
-    }
-    res.status(201).json({});
+        if(success) {
+            res.status(201).json(result.rows[0]);
+        }
+        else {
+            res.status(400).json({})
+        }  
+    } 
 });
 
 // get user's data
