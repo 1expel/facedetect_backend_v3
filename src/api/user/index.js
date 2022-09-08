@@ -8,29 +8,27 @@ const saltRounds = 10;
 
 // user signs in
 userRouter.post('/signIn', async (req, res) => {
-    try {
-        console.log("hello");
+    try{
         const sql = await fs.promises.readFile(
             './src/db/sql/user/getHashByEmail.sql',
+            'utf-8'
         );
-        console.log("hello");
-        const hash = await pool.query(sql, [req.params.email]);
-        console.log(hash);
+        const result = await pool.query(sql, ['user0@gmail.com']);
+        const hash = result.rows[0].hash;
         const same = await bcrypt.compare(req.body.password, hash);
         if(!same) {
             throw new Error();
         }
         const sql2 = await fs.promises.readFile(
-            './src/db/sql/user/getHashByEmail.sql',
-            'uft-8'
+            './src/db/sql/user/getUserByEmail.sql',
+            'utf-8'
         );
-        const user = pool.query(sql2, [req.params.email]).rows[0];
-        console.log(user);
+        const result2 = await pool.query(sql2, [req.body.email]);
+        const user = result2.rows[0];
         res.status(200).json(user);
     }
     catch (err) {
-        console.log(err);
-        res.status(400).json({});
+        res.status(400).json({})
     }
 });
 
@@ -46,7 +44,8 @@ userRouter.post('/signUp', async (req, res) => {
             './src/db/sql/user/addUser.sql',
             'utf-8'
         );
-        user = await client.query(sql, [req.body.name, req.body.email, new Date()]).rows[0];
+        const result = await client.query(sql, [req.body.name, req.body.email, new Date()]);
+        user = result.rows[0];
         const sql2 = await fs.promises.readFile(
             './src/db/sql/user/addLogin.sql',
             'utf-8'
