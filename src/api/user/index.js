@@ -6,7 +6,6 @@ import bcrypt from 'bcrypt';
 const userRouter = Router();
 const saltRounds = 10;
 
-// user signs in
 userRouter.post('/signIn', async (req, res) => {
     try{
         const sql = await fs.promises.readFile(
@@ -32,7 +31,6 @@ userRouter.post('/signIn', async (req, res) => {
     }
 });
 
-// user signs up
 userRouter.post('/signUp', async (req, res) => {
     let success = true;
     let user = {};
@@ -68,7 +66,6 @@ userRouter.post('/signUp', async (req, res) => {
     } 
 });
 
-// get user's entries
 userRouter.put('/entries', async (req, res) => {
     try {
         const sql = await fs.promises.readFile(
