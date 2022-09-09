@@ -24,7 +24,7 @@ clarifaiRouter.post('/faceDetection', (req, res) => {
                     data: 
                         { image: 
                             { 
-                                url: 'https://samples.clarifai.com/metro-north.jpg', 
+                                url: req.body.imageUrl, 
                                 allow_duplicate_url: true 
                             } 
                     } 
@@ -32,15 +32,14 @@ clarifaiRouter.post('/faceDetection', (req, res) => {
             ]
         },
         metadata,
-        (err, response, box) => {
-            if (err) {
-                throw new Error(err);
+        (err, response) => {
+            if (err || response.status.code !== 10000) {
+                res.status(400).json("an error has occured");
             }
-            if (response.status.code !== 10000) {
-                throw new Error("Post model outputs failed, status: " + response.status.description);
+            else {
+                const box = response.outputs[0].data.regions[0].region_info.bounding_box;
+                res.status(200).json(box);
             }
-            box = response.outputs[0].data.regions[0].region_info.bounding_box;
-            console.log('log', box);
         }
     );
 });
