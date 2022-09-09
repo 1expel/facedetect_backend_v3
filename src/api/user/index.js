@@ -67,12 +67,7 @@ userRouter.post('/signUp', async (req, res) => {
 });
 
 userRouter.put('/entries', async (req, res) => {
-
-    const box = clarifaiPredict();
-    console.log('box', box);
-
     try {
-
         const sql = await fs.promises.readFile(
             './src/db/sql/user/updateEntries.sql',
             'utf-8'

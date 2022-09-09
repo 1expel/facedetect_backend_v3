@@ -7,15 +7,11 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use('/user', userRouter);
-app.use('/clarifai', userRouter);
+app.use('/clarifai', clarifaiRouter);
 
 // root
 app.get('/', function(req, res) {
     res.json('Hello World');
 });
-
-
-
-
 
 app.listen(3001);

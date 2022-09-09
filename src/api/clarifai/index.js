@@ -3,7 +3,6 @@ import {ClarifaiStub, grpc} from 'clarifai-nodejs-grpc';
 import dotenv from 'dotenv';
 
 dotenv.config();
-const IMAGE_URL = 'https://samples.clarifai.com/metro-north.jpg';
 
 const stub = ClarifaiStub.grpc();
 const metadata = new grpc.Metadata();
@@ -21,7 +20,15 @@ clarifaiRouter.post('/faceDetection', (req, res) => {
             model_id: 'face-detection',
             version_id: '', 
             inputs: [
-                { data: { image: { url: IMAGE_URL, allow_duplicate_url: true } } }
+                { 
+                    data: 
+                        { image: 
+                            { 
+                                url: 'https://samples.clarifai.com/metro-north.jpg', 
+                                allow_duplicate_url: true 
+                            } 
+                    } 
+                }
             ]
         },
         metadata,
