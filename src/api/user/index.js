@@ -2,7 +2,6 @@ import {Router} from 'express';
 import pool from '../../db/index.js';
 import fs from 'fs';
 import bcrypt from 'bcrypt';
-import clarifaiPredict from './clarifai.js';
 
 const userRouter = Router();
 const saltRounds = 10;
@@ -69,7 +68,8 @@ userRouter.post('/signUp', async (req, res) => {
 
 userRouter.put('/entries', async (req, res) => {
 
-    // clarifaiPredict();
+    const box = clarifaiPredict();
+    console.log('box', box);
 
     try {
 
