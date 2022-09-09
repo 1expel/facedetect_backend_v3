@@ -2,6 +2,7 @@ import {Router} from 'express';
 import pool from '../../db/index.js';
 import fs from 'fs';
 import bcrypt from 'bcrypt';
+import clarifaiPredict from './clarifai.js';
 
 const userRouter = Router();
 const saltRounds = 10;
@@ -67,13 +68,18 @@ userRouter.post('/signUp', async (req, res) => {
 });
 
 userRouter.put('/entries', async (req, res) => {
+
+    // clarifaiPredict();
+
     try {
+
         const sql = await fs.promises.readFile(
-            './src/db/sql/user/getUserById.sql',
+            './src/db/sql/user/updateEntries.sql',
             'utf-8'
         );
-        const result = await pool.query(sql, [req.params.id]);
-        res.status(200).json(result.rows[0]);
+        const result = await pool.query(sql, [req.body.id]);
+        const entries = result.rows[0];
+        res.status(200).json(entries);
         }
     catch (err) {
         res.status(400).json({});
