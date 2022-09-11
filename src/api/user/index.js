@@ -12,7 +12,7 @@ userRouter.post('/signIn', async (req, res) => {
             './src/db/sql/user/getHashByEmail.sql',
             'utf-8'
         );
-        const result = await pool.query(sql, ['user0@gmail.com']);
+        const result = await pool.query(sql, [req.body.email]);
         const hash = result.rows[0].hash;
         const same = await bcrypt.compare(req.body.password, hash);
         if(!same) {
