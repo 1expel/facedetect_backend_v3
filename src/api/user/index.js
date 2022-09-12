@@ -2,6 +2,7 @@ import {Router} from 'express';
 import pool from '../../db/index.js';
 import fs from 'fs';
 import bcrypt from 'bcrypt';
+import addUser from './adduser.js';
 
 const userRouter = Router();
 const saltRounds = 10;
@@ -32,38 +33,27 @@ userRouter.post('/signIn', async (req, res) => {
 });
 
 userRouter.post('/signUp', async (req, res) => {
-    let success = true;
-    let user = {};
-    const client = await pool.connect();
     try {
-        const hash = await bcrypt.hash(req.body.password, saltRounds);
-        await client.query('BEGIN');
-        const sql = await fs.promises.readFile(
-            './src/db/sql/user/addUser.sql',
+        if(req.body.name === '' || req.body.email === '' || req.body.password === '') {
+            throw new Error('name, email, or password cannot be empty');
+        }
+        const sql = fs.promises.readFile(
+            './src/db/user/getUserByEmail.sql',
             'utf-8'
         );
-        const result = await client.query(sql, [req.body.name, req.body.email, new Date()]);
-        user = result.rows[0];
-        const sql2 = await fs.promises.readFile(
-            './src/db/sql/user/addLogin.sql',
-            'utf-8'
-        );
-        await client.query(sql2, [req.body.email, hash]);
-        await client.query('COMMIT');
+        const result = pool.query(sql, [req.body.email]);
+        if(result.rows[0] !== undefined) {
+            throw new Error('this email has already been used');
+        }
+        let success, user = addUser(req, res);
+        if(!success) {
+            throw new Error();
+        }
+        res.status(201).json(user);
     }
     catch (err) {
-        await client.query('ROLLBACK');
-        success = false;
+        res.status(400).json(err);
     }
-    finally {
-        client.release();
-        if(success) {
-            res.status(201).json(user);
-        }
-        else {
-            res.status(400).json({})
-        }  
-    } 
 });
 
 userRouter.put('/entries', async (req, res) => {
