@@ -33,8 +33,11 @@ clarifaiRouter.post('/faceDetection', (req, res) => {
         },
         metadata,
         (err, response) => {
-            if (err || response.status.code !== 10000) {
-                res.status(400).json("an error has occured");
+            if(err) {
+                res.status(500).json('Something went wrong');
+            }
+            else if (err || response.status.code !== 10000) {
+                res.status(400).json('Invalid image url');
             }
             else {
                 const box = response.outputs[0].data.regions[0].region_info.bounding_box;

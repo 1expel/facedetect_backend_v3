@@ -73,7 +73,7 @@ userRouter.put('/entries', async (req, res) => {
         res.status(200).json(entries);
         }
     catch (err) {
-        res.status(400).json({});
+        res.status(500).json('Something went wrong');
     }
 });
 
