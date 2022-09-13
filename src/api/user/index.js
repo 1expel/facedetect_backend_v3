@@ -5,7 +5,6 @@ import bcrypt from 'bcrypt';
 import addUser from './adduser.js';
 
 const userRouter = Router();
-const saltRounds = 10;
 
 userRouter.post('/signIn', async (req, res) => {
     try{
@@ -37,16 +36,16 @@ userRouter.post('/signUp', async (req, res) => {
         if(req.body.name === '' || req.body.email === '' || req.body.password === '') {
             throw new Error('name, email, or password cannot be empty');
         }
-        const sql = fs.promises.readFile(
-            './src/db/user/getUserByEmail.sql',
+        const sql = await fs.promises.readFile(
+            './src/db/sql/user/getUserByEmail.sql',
             'utf-8'
         );
-        const result = pool.query(sql, [req.body.email]);
+        const result = await pool.query(sql, [req.body.email]);
         if(result.rows[0] !== undefined) {
             throw new Error('this email has already been used');
         }
-        let success, user = addUser(req, res);
-        if(!success) {
+        let user = await addUser(req);
+        if(Object.keys(user).length === 0) {
             throw new Error();
         }
         res.status(201).json(user);

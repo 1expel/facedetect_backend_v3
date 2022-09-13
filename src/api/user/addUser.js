@@ -1,8 +1,10 @@
 import pool from '../../db/index.js';
+import fs from 'fs';
 import bcrypt from 'bcrypt';
 
-const addUser = async () => {
-    let success = true;
+const saltRounds = 10;
+
+const addUser = async (req) => {
     let user = {};
     const client = await pool.connect();
     try {
@@ -23,12 +25,12 @@ const addUser = async () => {
     }
     catch (err) {
         await client.query('ROLLBACK');
-        success = false;
+        user = {};
     }
     finally {
         client.release();
     } 
-    return success, user;
+    return user;
 }
 
 export default addUser;
