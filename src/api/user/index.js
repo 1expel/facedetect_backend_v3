@@ -13,10 +13,15 @@ userRouter.post('/signIn', async (req, res) => {
             'utf-8'
         );
         const result = await pool.query(sql, [req.body.email]);
+        if(result.rows[0] === undefined) {
+            res.status(400).json('Invalid email or password');
+            return;
+        }
         const hash = result.rows[0].hash;
         const same = await bcrypt.compare(req.body.password, hash);
         if(!same) {
-            throw new Error();
+            res.status(400).json('Invalid email or password');
+            return;
         }
         const sql2 = await fs.promises.readFile(
             './src/db/sql/user/getUserByEmail.sql',
@@ -27,14 +32,15 @@ userRouter.post('/signIn', async (req, res) => {
         res.status(200).json(user);
     }
     catch (err) {
-        res.status(400).json({})
+        res.status(500).json('Something went wrong');
     }
 });
 
 userRouter.post('/signUp', async (req, res) => {
     try {
         if(req.body.name === '' || req.body.email === '' || req.body.password === '') {
-            throw new Error('name, email, or password cannot be empty');
+            res.status(400).json('name, email, or password cannot be empty');
+            return;
         }
         const sql = await fs.promises.readFile(
             './src/db/sql/user/getUserByEmail.sql',
@@ -42,7 +48,8 @@ userRouter.post('/signUp', async (req, res) => {
         );
         const result = await pool.query(sql, [req.body.email]);
         if(result.rows[0] !== undefined) {
-            throw new Error('this email has already been used');
+            res.status(401).json('this email has already been used');
+            return;
         }
         let user = await addUser(req);
         if(Object.keys(user).length === 0) {
@@ -51,7 +58,7 @@ userRouter.post('/signUp', async (req, res) => {
         res.status(201).json(user);
     }
     catch (err) {
-        res.status(400).json(err);
+        res.status(500).json('something went wrong');
     }
 });
 

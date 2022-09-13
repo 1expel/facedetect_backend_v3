@@ -7,8 +7,7 @@
   "scripts": {
     "start-dev": "nodemon src/index.js",
     "clean": "node src/scripts/clean.js",
-    "populate": "node src/scripts/populate.js",
-    "test": "node src/api/user/clarifai.js"
+    "populate": "node src/scripts/populate.js"
   },
   "repository": {
     "type": "git",
