@@ -1,6 +1,6 @@
 import {Router} from 'express';
 import pool from '../../db/index.js';
-import fs from 'fs';
+import {promises} from 'fs';
 import bcrypt from 'bcrypt';
 import addUser from './adduser.js';
 
@@ -8,7 +8,7 @@ const userRouter = Router();
 
 userRouter.post('/signIn', async (req, res) => {
     try{
-        const sql = await fs.promises.readFile(
+        const sql = await promises.readFile(
             './src/db/sql/user/getHashByEmail.sql',
             'utf-8'
         );
@@ -23,7 +23,7 @@ userRouter.post('/signIn', async (req, res) => {
             res.status(400).json('Invalid email or password');
             return;
         }
-        const sql2 = await fs.promises.readFile(
+        const sql2 = await promises.readFile(
             './src/db/sql/user/getUserByEmail.sql',
             'utf-8'
         );
@@ -42,7 +42,7 @@ userRouter.post('/signUp', async (req, res) => {
             res.status(400).json('name, email, or password cannot be empty');
             return;
         }
-        const sql = await fs.promises.readFile(
+        const sql = await promises.readFile(
             './src/db/sql/user/getUserByEmail.sql',
             'utf-8'
         );
@@ -64,7 +64,7 @@ userRouter.post('/signUp', async (req, res) => {
 
 userRouter.put('/entries', async (req, res) => {
     try {
-        const sql = await fs.promises.readFile(
+        const sql = await promises.readFile(
             './src/db/sql/user/updateEntries.sql',
             'utf-8'
         );

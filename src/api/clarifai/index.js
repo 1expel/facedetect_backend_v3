@@ -36,7 +36,7 @@ clarifaiRouter.post('/faceDetection', (req, res) => {
             if(err) {
                 res.status(500).json('Something went wrong');
             }
-            else if (err || response.status.code !== 10000) {
+            else if(err || response.status.code !== 10000) {
                 res.status(400).json('Invalid image url');
             }
             else {
