@@ -12,9 +12,8 @@ app.use(cors());
 app.use('/user', userRouter);
 app.use('/clarifai', clarifaiRouter);
 
-// root
-app.get('/', function(req, res) {
-    res.json('Hello World');
-});
+const port = process.env.PORT || 3001;
 
-app.listen(process.env.EXPRESS_PORT);
+app.listen(port, () => {
+    console.log('Face Detect is running on port ', port);
+});
