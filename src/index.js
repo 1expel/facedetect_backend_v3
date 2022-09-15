@@ -12,6 +12,7 @@ app.use(cors());
 app.use('/user', userRouter);
 app.use('/clarifai', clarifaiRouter);
 
+// process.env.PORT comes from Heroku
 const port = process.env.PORT || 3001;
 
 app.listen(port, () => {
