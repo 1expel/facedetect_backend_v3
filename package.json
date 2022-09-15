@@ -5,6 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "start": "node src/index.js",
     "start-dev": "nodemon src/index.js",
     "clean": "node src/scripts/clean.js",
     "populate": "node src/scripts/populate.js"

@@ -1,35 +1,32 @@
 import pool from '../db/index.js';
-import fs from 'fs';
+import {promises} from 'fs';
 import users from '../assets/users.js';
-import bcrypt from 'bcrypt';
+import addUser from '../api/user/addUser.js';
 
-const saltRounds = 10;
-
-const populate = async (user) => {
-    const client = await pool.connect();
+const populate = async (userData) => {
     try {
-        const hash = await bcrypt.hash(user.password, saltRounds);
-        console.log('beginning txn');
-        await client.query('BEGIN');
-        const sql = await fs.promises.readFile(
-            './src/db/sql/user/addUser.sql',
+        const {name, email, password} = userData;
+        if(name === '' || email === '' || password === '') {
+            console.log('name, email, or password cannot be empty')
+            return;
+        }
+        const sql = await promises.readFile(
+            './src/db/sql/user/getUserByEmail.sql',
             'utf-8'
         );
-        await client.query(sql, [user.name, user.email, new Date()]);
-        const sql2 = await fs.promises.readFile(
-            './src/db/sql/user/addLogin.sql',
-            'utf-8'
-        );
-        await client.query(sql2, [user.email, hash]);
-        await client.query('COMMIT');
-        console.log('finished txn');
+        const result = await pool.query(sql, [email]);
+        if(result.rows[0] !== undefined) {
+            console.log('failed, ', email, ' has already been used');
+            return;
+        }
+        let user = await addUser(name, email, password);
+        if(Object.keys(user).length === 0) {
+            throw new Error();
+        }
+        console.log('populated ', user.name);
     }
     catch (err) {
-        await client.query('ROLLBACK');
-        console.log(err);
-    }
-    finally {
-        client.release();
+        console.log('an error has occured');
     }
 }
 

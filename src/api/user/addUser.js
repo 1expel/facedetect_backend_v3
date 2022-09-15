@@ -4,23 +4,23 @@ import bcrypt from 'bcrypt';
 
 const saltRounds = 10;
 
-const addUser = async (req) => {
+const addUser = async (name, email, password) => {
     let user = {};
     const client = await pool.connect();
     try {
-        const hash = await bcrypt.hash(req.body.password, saltRounds);
+        const hash = await bcrypt.hash(password, saltRounds);
         await client.query('BEGIN');
         const sql = await promises.readFile(
             './src/db/sql/user/addUser.sql',
             'utf-8'
         );
-        const result = await client.query(sql, [req.body.name, req.body.email, new Date()]);
+        const result = await client.query(sql, [name, email, new Date()]);
         user = result.rows[0];
         const sql2 = await promises.readFile(
             './src/db/sql/user/addLogin.sql',
             'utf-8'
         );
-        await client.query(sql2, [req.body.email, hash]);
+        await client.query(sql2, [email, hash]);
         await client.query('COMMIT');
     }
     catch (err) {
