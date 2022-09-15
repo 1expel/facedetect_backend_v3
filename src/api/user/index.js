@@ -2,7 +2,7 @@ import {Router} from 'express';
 import pool from '../../db/index.js';
 import {promises} from 'fs';
 import bcrypt from 'bcrypt';
-import addUser from './adduser.js';
+import addUser from './addUser.js';
 
 const userRouter = Router();
 
